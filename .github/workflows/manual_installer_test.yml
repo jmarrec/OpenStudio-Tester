@@ -45,6 +45,11 @@ jobs:
         ls
         echo "puts ARGV" > test.rb
 
+    - name: EnergyPlus itself works
+      shell: bash
+      run: |
+        $OS_ROOT_DIR/EnergyPlus/energyplus --help || echo "EnergyPlus missing dependencies!" && apt install -y libgomp1 libx11-6 && $OS_ROOT_DIR/EnergyPlus/energyplus --help
+
     - name: Basic CLI test
       shell: bash
       run: |
