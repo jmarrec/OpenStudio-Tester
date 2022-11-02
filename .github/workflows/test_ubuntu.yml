@@ -124,6 +124,7 @@ jobs:
           separator
           echo -e "\033[0;33m$1\033[0m"
           ldd $1
+          objdump -x _openstudioairflow.so | grep RUNPATH || true
         }
 
         cd $OS_ROOT_DIR
