@@ -50,13 +50,14 @@ jobs:
       run: |
         set -x
         installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Windows.tar.gz"
-        dirname=OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG+$OS_BUILD_SHA-Windows
+        OS_DIR_NAME=OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG+$OS_BUILD_SHA-Windows
+        echo "OS_DIR_NAME=$OS_DIR_NAME" >> $GITHUB_ENV
         echo "Installer link: $installer_url"
-        curl -SL $installer_url -o $dirname.tar.gz
+        curl -SL $installer_url -o $OS_DIR_NAME.tar.gz
         ls
-        tar xfz $dirname.tar.gz
+        tar xfz $OS_DIR_NAME.tar.gz
 
-        OS_ROOT_DIR=$(pwd)/$dirname
+        OS_ROOT_DIR=$(pwd)/$OS_DIR_NAME
         echo "OS_ROOT_DIR=$OS_ROOT_DIR" >> $GITHUB_ENV
         cp -R $OS_ROOT_DIR/Examples/compact_osw/* .
         ls
@@ -119,11 +120,13 @@ jobs:
     - name: test loading the bindings in system python
       shell: bash
       run: |
+        set -x
         python --version
-        python -c "from pathlib import Path; import sys; sys.path.insert(0, str(Path('$OS_ROOT_DIR/Python/'))); import openstudio; print(openstudio.openStudioLongVersion())"
+        python -c "import sys; sys.path.insert(0, '$GITHUB_WORKSPACE/$OS_DIR_NAME/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
 
     - name: Print OS SDK tree
       if: ${{ always() }}
+      working-directory: ${{ env.OS_DIR_NAME }}
       run: |
         cd $OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG+$OS_BUILD_SHA-Windows
         tree /f /a
