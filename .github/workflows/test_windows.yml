@@ -52,7 +52,7 @@ jobs:
         installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Windows.tar.gz"
         dirname=OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG+$OS_BUILD_SHA-Windows
         echo "Installer link: $installer_url"
-        curl -SLO $installer_url
+        curl -SL $installer_url -o $dirname.tar.gz
         ls
         tar xfz $dirname.tar.gz
 
