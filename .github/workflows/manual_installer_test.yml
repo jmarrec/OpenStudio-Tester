@@ -20,7 +20,7 @@ on:
          required: true
          default: 'f9e7e978ae'
   repository_dispatch:
-    types: [on-demand-test]
+    types: [on-demand-test-all]
 
 jobs:
   installer_ubuntu_2004:
@@ -46,8 +46,6 @@ jobs:
         cp -R $OS_ROOT_DIR/Examples/compact_osw/* .
         ls
         echo "puts ARGV" > test.rb
-
-        echo "ImageOS=ubuntu20" >> $GITHUB_ENV
 
     - name: EnergyPlus itself works
       shell: bash

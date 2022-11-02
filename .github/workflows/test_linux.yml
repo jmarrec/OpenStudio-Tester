@@ -1,0 +1,158 @@
+name: Test CLI - Ubuntu Focal docker
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'The base url to use to download each platform'
+        required: true
+        default: 'http://openstudio-ci-builds.s3-website-us-west-2.amazonaws.com/PR-4731'
+      os_version:
+        description: 'OpenStudio Version (e.g. 3.5.0)'
+        required: true
+        default: '3.5.0'
+      os_prerelease_tag:
+        description: 'Pre-release tag (e.g. -alpha, -rc1). Leave empty if none'
+        required: false
+        default: '-rc1'
+      os_build_sha:
+         description: 'OpenStudio Build sha (first 10 chars)'
+         required: true
+         default: 'f9e7e978ae'
+  repository_dispatch:
+    types: [on-demand-test, on-demand-ubuntu-test]
+
+jobs:
+  installer_ubuntu_2004:
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:focal
+
+    steps:
+
+    - name: Handle workflow_dispatch and repository_dispatch
+      shell: bash
+      run: |
+        if [[ "${{ github.event_name }}" == 'workflow_dispatch' ]]; then
+          echo "BASE_URL=${{ github.event.inputs.base_url}}" >> $GITHUB_ENV
+          echo "OS_VERSION=${{ github.event.inputs.os_version}}" >> $GITHUB_ENV
+          echo "OS_PRERELEASE_TAG=${{ github.event.inputs.os_prerelease_tag}}" >> $GITHUB_ENV
+          echo "OS_BUILD_SHA=${{ github.event.inputs.os_build_sha}}" >> $GITHUB_ENV
+        else
+          # ${{ github.event_name == 'repository_dispatch' }}
+          echo "BASE_URL=${{ github.event.client_payload.base_url}}" >> $GITHUB_ENV
+          echo "OS_VERSION=${{ github.event.client_payload.os_version}}" >> $GITHUB_ENV
+          echo "OS_PRERELEASE_TAG=${{ github.client_payload.inputs.os_prerelease_tag}}" >> $GITHUB_ENV
+          echo "OS_BUILD_SHA=${{ github.event.client_payload.os_build_sha}}" >> $GITHUB_ENV
+        fi;
+
+    - name: Download and install OS SDK installer
+      shell: bash
+      run: |
+        set -x
+        installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Ubuntu-20.04.deb"
+        echo "Installer link: $installer_url"
+        apt update && apt install -y wget
+        wget --quiet $installer_url
+        apt install -y ./OpenStudio*.deb
+        openstudio openstudio_version
+        echo "PATH=$PATH"
+
+        OS_ROOT_DIR=/usr/local/openstudio-$OS_VERSION$OS_PRERELEASE_TAG
+        echo "OS_ROOT_DIR=$OS_ROOT_DIR" >> $GITHUB_ENV
+        cp -R $OS_ROOT_DIR/Examples/compact_osw/* .
+        ls
+        echo "puts ARGV" > test.rb
+
+    - name: EnergyPlus itself works
+      shell: bash
+      run: |
+        $OS_ROOT_DIR/EnergyPlus/energyplus --help || echo "EnergyPlus missing dependencies!" && apt install -y libgomp1 libx11-6 && $OS_ROOT_DIR/EnergyPlus/energyplus --help
+
+    - name: Basic CLI test
+      shell: bash
+      run: |
+        set -x
+        openstudio --help
+        openstudio openstudio_version
+        openstudio energyplus_version
+        openstudio ruby_version
+        openstudio -e "puts OpenStudio::Model::Model.new()"
+        openstudio -e "require 'oga'; puts Oga::VERSION"
+        openstudio execute_ruby_script test.rb -x arg2
+        openstudio run -w compact_ruby_only.osw
+
+    - name: Labs CLI Test
+      shell: bash
+      run: |
+        set -x
+        openstudio labs --help
+        openstudio labs openstudio_version
+        openstudio labs energyplus_version
+        openstudio labs ruby_version
+        openstudio labs python_version
+        openstudio labs -e "puts OpenStudio::Model::Model.new()"
+        openstudio labs -e "require 'oga'; puts Oga::VERSION"
+        openstudio labs execute_ruby_script test.rb -- -x arg2
+        openstudio labs run -w compact_ruby_only.osw
+        openstudio labs run -w compact_python_only_twomeasures.osw
+        openstudio labs run -w compact_ruby_and_python.osw || true
+
+    - name: test loading the bindings in system ruby
+      shell: bash
+      run: |
+        apt install -y ruby2.7
+        ruby --version
+        ruby -I$OS_ROOT_DIR/Ruby/ -e "require 'openstudio'; puts OpenStudio.openStudioLongVersion()"
+
+    - name: test loading the bindings in system python
+      shell: bash
+      run: |
+        apt install -y python3.8
+        python3.8 --version
+        python3.8 -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+
+    - name: Inspect libs
+      shell: bash
+      if: ${{ always() }}
+      run: |
+        separator() {
+          echo -e "\n\033[0;31m===========================================================\033[0m"
+        };
+
+        inspect_lib() {
+          separator
+          echo -e "\033[0;33m$1\033[0m"
+          ldd $1
+        }
+
+        cd $OS_ROOT_DIR
+        set -x
+
+        inspect_lib bin/openstudio
+
+        inspect_lib lib/libopenstudiolib.so
+
+        inspect_lib lib/libpythonengine.so
+
+        inspect_lib lib/librubyengine.so
+
+        inspect_lib Python/_openstudiomodel.so
+
+        inspect_lib Ruby/openstudio.so
+
+    - name: Print OS SDK tree
+      shell: bash
+      if: ${{ always() }}
+      run: |
+        apt install -y tree
+        cd $OS_ROOT_DIR
+        tree -I 'Radiance|python_standard_lib|include'
+
+#    - uses: 8398a7/action-slack@v3
+#      if: always() # Pick up events even if the job fails or is canceled.
+#      with:
+#        status: ${{ job.status }}
+#        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took # selectable (default: repo,message)
+#      env:
+#        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
