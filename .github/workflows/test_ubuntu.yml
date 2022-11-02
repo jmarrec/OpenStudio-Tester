@@ -45,7 +45,7 @@ jobs:
           echo "OS_PRERELEASE_TAG=${{ github.event.client_payload.os_prerelease_tag}}" >> $GITHUB_ENV
           OS_BUILD_SHA=${{ github.event.client_payload.os_build_sha}}
         fi;
-        OS_FULL_SHA=$(gh api repos/NREL/OpenStudio/commits/$(OS_BUILD_SHA) --jq ".sha")
+        OS_FULL_SHA=$(gh api repos/NREL/OpenStudio/commits/$OS_BUILD_SHA --jq ".sha")
         OS_BUILD_SHA=$(python -c "print('$OS_BUILD_SHA'[:10])")
 
         echo "OS_BUILD_SHA=$OS_BUILD_SHA" >> $GITHUB_ENV
