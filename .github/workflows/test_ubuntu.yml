@@ -42,7 +42,7 @@ jobs:
           # ${{ github.event_name == 'repository_dispatch' }}
           echo "BASE_URL=${{ github.event.client_payload.base_url}}" >> $GITHUB_ENV
           echo "OS_VERSION=${{ github.event.client_payload.os_version}}" >> $GITHUB_ENV
-          echo "OS_PRERELEASE_TAG=${{ github.client_payload.os_prerelease_tag}}" >> $GITHUB_ENV
+          echo "OS_PRERELEASE_TAG=${{ github.event.client_payload.os_prerelease_tag}}" >> $GITHUB_ENV
           echo "OS_BUILD_SHA=${{ github.event.client_payload.os_build_sha}}" >> $GITHUB_ENV
         fi;
 
