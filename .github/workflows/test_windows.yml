@@ -107,15 +107,11 @@ jobs:
       with:
         python-version: '3.8.x'
 
-    - name: Temp debug
-      run:
-        ls D:\OpenStudio-Tester\OpenStudio-Tester\OpenStudio-3.5.0-rc1+f9e7e978ae-Windows\Python
-
     - name: test loading the bindings in system python
       working-directory: ${{ env.OS_DIR_NAME }}
       run: |
         python --version
-        python -c "from pathlib import Path; p = (Path('${{ github.workspace }}') / '${{ env.OS_DIR_NAME }}' / 'Python').absolute(); print(p); import sys; sys.path.insert(0, str(p)); import openstudio; print(openstudio.openStudioLongVersion())"
+        python -c "from pathlib import Path; p = Path('./Python').absolute(); print(p); import sys; sys.path.insert(0, str(p)); import openstudio; print(openstudio.openStudioLongVersion())"
 
     - uses: ruby/setup-ruby@v1
       with:
