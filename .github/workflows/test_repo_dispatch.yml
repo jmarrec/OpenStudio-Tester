@@ -26,10 +26,23 @@ jobs:
   installer_ubuntu_2004:
     runs-on: ubuntu-latest
     steps:
-    - name: set up env
+    - name: set up env variables
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      shell: bash
+      run: |
+        echo "BASE_URL=${{ github.event.inputs.base_url}}" >> $GITHUB_ENV
+        echo "OS_VERSION=${{ github.event.inputs.os_version}}" >> $GITHUB_ENV
+        echo "OS_PRERELEASE_TAG=${{ github.event.inputs.os_prerelease_tag}}" >> $GITHUB_ENV
+        echo "OS_BUILD_SHA=${{ github.event.inputs.os_build_sha}}" >> $GITHUB_ENV
+
+    - name: set up env variables for repo dispatch
       shell: bash
       env:
         GITHUB_EVENT_CONTEXT: ${{ toJson(github.event) }}
       run: |
         echo ${{ github.event_name }}
         echo "$GITHUB_EVENT_CONTEXT" | tee github_event.json
+
+    - name: does accessing something that doesnt exist in the context fail
+      run: |
+        echo "CSLIFJKDSJF=${{ github.event.inputs.sfdsfdsfsf}}" >> $GITHUB_ENV
