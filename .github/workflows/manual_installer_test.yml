@@ -105,7 +105,7 @@ jobs:
 #      env:
 #        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
 
-  installer_macos_2004:
+  installer_macos_latest:
     runs-on: macos-latest
 
     steps:
@@ -165,16 +165,102 @@ jobs:
         openstudio labs run -w compact_python_only_twomeasures.osw
         openstudio labs run -w compact_ruby_and_python.osw || true
 
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+
     - name: test loading the bindings in system ruby
       shell: bash
       run: |
-        brew install ruby@2.7
-        $(brew --prefix python@2.7)/bin/ruby --version
-        $(brew --prefix python@2.7)/bin/ruby -I$OS_ROOT_DIR/Ruby/ -e "require 'openstudio'; puts OpenStudio.openStudioLongVersion()"
+        ruby --version
+        ruby -I$OS_ROOT_DIR/Ruby/ -e "require 'openstudio'; puts OpenStudio.openStudioLongVersion()"
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.8.x'
 
     - name: test loading the bindings in system python
       shell: bash
       run: |
-        brew install python@3.8
-        $(brew --prefix python@3.8)/bin/python3 --version
-        $(brew --prefix python@3.8)/bin/python3 -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+        python --version
+        python -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+
+  installer_windows_latest:
+    runs-on: windows-latest
+
+    steps:
+    - name: Download and install OS SDK installer
+      shell: bash
+      run: |
+        set -x
+        installer_url="${{ github.event.inputs.base_url}}/OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}%2B${{ github.event.inputs.os_build_sha}}-Windows.tar.gz"
+        dirname=OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}+${{ github.event.inputs.os_build_sha}}-Windows
+        echo "Installer link: $installer_url"
+        wget --quiet $installer_url
+        tar xfz $dirname.tar.gz
+
+        OS_ROOT_DIR=$(pwd)/$dirname
+        echo "OS_ROOT_DIR=$OS_ROOT_DIR" >> $GITHUB_ENV
+        cp -R $OS_ROOT_DIR/Examples/compact_osw/* .
+        ls
+        echo "puts ARGV" > test.rb
+
+        export PATH="$OS_ROOT_DIR/bin:$PATH"
+        echo "$OS_ROOT_DIR/bin" >> $GITHUB_PATH
+
+        openstudio openstudio_version
+        echo "PATH=$PATH"
+
+    - name: EnergyPlus itself works
+      shell: bash
+      run: |
+        $OS_ROOT_DIR/EnergyPlus/energyplus --help
+
+    - name: Basic CLI test
+      shell: bash
+      run: |
+        set -x
+        openstudio --help
+        openstudio openstudio_version
+        openstudio energyplus_version
+        openstudio ruby_version
+        openstudio -e "puts OpenStudio::Model::Model.new()"
+        openstudio -e "require 'oga'; puts Oga::VERSION"
+        openstudio execute_ruby_script test.rb -x arg2
+        openstudio run -w compact_ruby_only.osw
+
+    - name: Labs CLI Test
+      shell: bash
+      run: |
+        set -x
+        openstudio labs --help
+        openstudio labs openstudio_version
+        openstudio labs energyplus_version
+        openstudio labs ruby_version
+        openstudio labs python_version
+        openstudio labs -e "puts OpenStudio::Model::Model.new()"
+        openstudio labs -e "require 'oga'; puts Oga::VERSION"
+        openstudio labs execute_ruby_script test.rb -- -x arg2
+        openstudio labs run -w compact_ruby_only.osw
+        openstudio labs run -w compact_python_only_twomeasures.osw
+        openstudio labs run -w compact_ruby_and_python.osw || true
+
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+
+    - name: test loading the bindings in system ruby
+      shell: bash
+      run: |
+        ruby --version
+        ruby -I$OS_ROOT_DIR/Ruby/ -e "require 'openstudio'; puts OpenStudio.openStudioLongVersion()"
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.8.x'
+
+    - name: test loading the bindings in system python
+      shell: bash
+      run: |
+        python --version
+        python -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
