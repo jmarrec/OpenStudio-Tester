@@ -112,7 +112,7 @@ jobs:
       run: |
         set -x
         python --version
-        python -c "import sys; sys.path.insert(0, r'${{ github.workspace }}\${{ env.OS_DIR_NAME }}\Python\'); import openstudio; print(openstudio.openStudioLongVersion())"
+        python -c "from pathlib import Path; import sys; sys.path.insert(0, str((Path('${{ github.workspace }}') / '${{ env.OS_DIR_NAME }}' / 'Python').absolute())); import openstudio; print(openstudio.openStudioLongVersion())"
 
     - uses: ruby/setup-ruby@v1
       with:
