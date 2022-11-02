@@ -16,7 +16,7 @@ on:
         required: false
         default: '-rc1'
       os_build_sha:
-         description: 'OpenStudio Build sha (first 10 chars)'
+         description: 'OpenStudio Build sha (at least the first 10 chars)'
          required: true
          default: 'f9e7e978ae'
   repository_dispatch:
@@ -45,10 +45,16 @@ jobs:
           echo "OS_PRERELEASE_TAG=${{ github.event.client_payload.os_prerelease_tag}}" >> $GITHUB_ENV
           echo "OS_BUILD_SHA=${{ github.event.client_payload.os_build_sha}}" >> $GITHUB_ENV
         fi;
+        OS_FULL_SHA=$(gh api repos/NREL/OpenStudio/commits/$(OS_BUILD_SHA) --jq ".sha")
+        OS_BUILD_SHA=$(python -c "print('$OS_BUILD_SHA'[:10])")
+
+        gh api --method POST -H "Accept: application/vnd.github+json" /repos/NREL/OpenStudio/statuses/$OS_FULL_SHA -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" -f context="OpenStudio-Tester/Ubuntu" -f state="pending
+        echo "STEP_DESCRIPTION=pending" >> $GITHUB_ENV
 
     - name: Download and install OS SDK installer
       shell: bash
       run: |
+        echo "STEP_DESCRIPTION=download" >> $GITHUB_ENV
         set -x
         installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Ubuntu-20.04.deb"
         echo "Installer link: $installer_url"
@@ -67,11 +73,13 @@ jobs:
     - name: EnergyPlus itself works
       shell: bash
       run: |
+        echo "STEP_DESCRIPTION='EnergyPlus itself works'" >> $GITHUB_ENV
         $OS_ROOT_DIR/EnergyPlus/energyplus --help || echo "EnergyPlus missing dependencies!" && apt install -y libgomp1 libx11-6 && $OS_ROOT_DIR/EnergyPlus/energyplus --help
 
     - name: Basic CLI test
       shell: bash
       run: |
+        echo "STEP_DESCRIPTION='Basic CLI test'" >> $GITHUB_ENV
         set -x
         openstudio --help
         openstudio openstudio_version
@@ -85,6 +93,7 @@ jobs:
     - name: Labs CLI Test
       shell: bash
       run: |
+        echo "STEP_DESCRIPTION='Labs CLI Test'" >> $GITHUB_ENV
         set -x
         openstudio labs --help
         openstudio labs openstudio_version
@@ -101,6 +110,7 @@ jobs:
     - name: test loading the bindings in system ruby
       shell: bash
       run: |
+        echo "STEP_DESCRIPTION='Ruby bindings'" >> $GITHUB_ENV
         apt install -y ruby2.7
         ruby --version
         ruby -I$OS_ROOT_DIR/Ruby/ -e "require 'openstudio'; puts OpenStudio.openStudioLongVersion()"
@@ -108,9 +118,22 @@ jobs:
     - name: test loading the bindings in system python
       shell: bash
       run: |
+        echo "STEP_DESCRIPTION='Python bindings'" >> $GITHUB_ENV
         apt install -y python3.8
         python3.8 --version
         python3.8 -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+
+    - name: post status
+      shell: bash
+      if: ${{ failure() }
+      run: |
+        gh api --method POST -H "Accept: application/vnd.github+json" /repos/NREL/OpenStudio/statuses/$OS_FULL_SHA -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" -f context="OpenStudio-Tester/Ubuntu" -f state=failure" -f description="$STEP_DESCRIPTION"
+
+    - name: post status
+      shell: bash
+      if: ${{ success() }
+      run: |
+        gh api --method POST -H "Accept: application/vnd.github+json" /repos/NREL/OpenStudio/statuses/$OS_FULL_SHA -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" -f context="OpenStudio-Tester/Ubuntu" -f state="success" -f description="CLI Test on Docker ubuntu:focal"
 
     - name: Inspect libs
       shell: bash
