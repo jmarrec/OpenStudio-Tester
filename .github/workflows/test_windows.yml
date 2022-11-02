@@ -53,6 +53,7 @@ jobs:
         dirname=OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG+$OS_BUILD_SHA-Windows
         echo "Installer link: $installer_url"
         curl -SLO $installer_url
+        ls
         tar xfz $dirname.tar.gz
 
         OS_ROOT_DIR=$(pwd)/$dirname
