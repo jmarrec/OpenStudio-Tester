@@ -122,11 +122,10 @@ jobs:
       run: |
         set -x
         python --version
-        python -c "import sys; sys.path.insert(0, '$GITHUB_WORKSPACE/$OS_DIR_NAME/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+        python -c "import sys; sys.path.insert(0, r'$GITHUB_WORKSPACE\$OS_DIR_NAME\Python\'); import openstudio; print(openstudio.openStudioLongVersion())"
 
     - name: Print OS SDK tree
       if: ${{ always() }}
       working-directory: ${{ env.OS_DIR_NAME }}
       run: |
-        cd $OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG+$OS_BUILD_SHA-Windows
         tree /f /a
