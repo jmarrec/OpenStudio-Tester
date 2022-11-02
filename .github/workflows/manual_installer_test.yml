@@ -34,14 +34,15 @@ jobs:
         installer_url="${{ github.event.inputs.base_url}}/OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}%2B${{ github.event.inputs.os_build_sha}}-Ubuntu-20.04.deb"
         echo "Installer link: $installer_url"
         apt update && apt install -y wget
-        wget $installer_url
+        wget --quiet $installer_url
         apt install -y ./OpenStudio*.deb
         openstudio openstudio_version
         echo "PATH=$PATH"
 
         OS_ROOT_DIR=/usr/local/openstudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}
         echo "OS_ROOT_DIR=$OS_ROOT_DIR" >> $GITHUB_ENV
-        cp -R $OS_ROOT_DIR/Examples/compact_osw/*
+        cp -R $OS_ROOT_DIR/Examples/compact_osw/* .
+        ls
         echo "puts ARGV" > test.rb
 
     - name: Basic CLI test
