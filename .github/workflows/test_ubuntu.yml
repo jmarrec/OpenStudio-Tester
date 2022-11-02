@@ -52,7 +52,7 @@ jobs:
         set -x
         installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Ubuntu-20.04.deb"
         echo "Installer link: $installer_url"
-        apt update && apt install -y wget
+        apt update && apt install -y wget binutils
         wget --quiet $installer_url
         apt install -y ./OpenStudio*.deb
         openstudio openstudio_version
