@@ -71,6 +71,8 @@ jobs:
         openstudio openstudio_version
         echo "PATH=$PATH"
 
+        brew install tree
+
     - name: EnergyPlus itself works
       shell: bash
       run: |
@@ -159,6 +161,5 @@ jobs:
       shell: bash
       if: ${{ always() }}
       run: |
-        brew install tree
         cd $OS_ROOT_DIR
         tree -I 'Radiance|python_standard_lib|include'

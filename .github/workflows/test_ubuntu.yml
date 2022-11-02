@@ -52,7 +52,7 @@ jobs:
         set -x
         installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Ubuntu-20.04.deb"
         echo "Installer link: $installer_url"
-        apt update && apt install -y wget binutils
+        apt update && apt install -y wget binutils tree
         wget --quiet $installer_url
         apt install -y ./OpenStudio*.deb
         openstudio openstudio_version
@@ -145,7 +145,6 @@ jobs:
       shell: bash
       if: ${{ always() }}
       run: |
-        apt install -y tree
         cd $OS_ROOT_DIR
         tree -I 'Radiance|python_standard_lib|include'
 
