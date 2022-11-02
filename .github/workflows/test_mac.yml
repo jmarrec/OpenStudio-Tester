@@ -137,7 +137,7 @@ jobs:
           separator
           echo -e "\033[0;33m$1\033[0m"
           otool -L $1
-          otool -l $1 | grep -A2 LC_RPATH
+          otool -l $1 | grep -A2 LC_RPATH || true
         }
 
         cd $OS_ROOT_DIR
