@@ -6,7 +6,7 @@ on:
       base_url:
         description: 'The base url to use to download each platform'
         required: true
-        default: 'https://github.com/NREL/OpenStudio/releases/download/v3.5.0'
+        default: 'http://openstudio-ci-builds.s3-website-us-west-2.amazonaws.com/PR-4731'
       os_version:
         description: 'OpenStudio Version (e.g. 3.5.0)'
         required: true
@@ -14,11 +14,11 @@ on:
       os_prerelease_tag:
         description: 'Pre-release tag (e.g. -alpha, -rc1). Leave empty if none'
         required: false
-        default: ''
+        default: '-rc1'
       os_build_sha:
          description: 'OpenStudio Build sha (first 10 chars)'
          required: true
-         default: 'bdbdbc9da6'
+         default: 'f9e7e978ae'
 
 jobs:
   installer_ubuntu_2004:
@@ -31,7 +31,7 @@ jobs:
       shell: bash
       run: |
         set -x
-        installer_url="${{ github.event.inputs.base_url}}/OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}%2B${{ github.event.inputs.os_build_sha}}-Ubuntu-18.04.deb"
+        installer_url="${{ github.event.inputs.base_url}}/OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}%2B${{ github.event.inputs.os_build_sha}}-Ubuntu-20.04.deb"
         echo "Installer link: $installer_url"
         apt update && apt install -y wget
         wget $installer_url
@@ -41,7 +41,7 @@ jobs:
 
         OS_ROOT_DIR=/usr/local/openstudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}
         echo "OS_ROOT_DIR=$OS_ROOT_DIR" >> $GITHUB_ENV
-        cp -R /usr/local/openstudio-3.4.0/Examples/compact_osw/*
+        cp -R $OS_ROOT_DIR/Examples/compact_osw/*
         echo "puts ARGV" > test.rb
 
     - name: Basic CLI test
