@@ -32,6 +32,8 @@ jobs:
 
     - name: Handle workflow_dispatch and repository_dispatch
       shell: bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         if [[ "${{ github.event_name }}" == 'workflow_dispatch' ]]; then
           echo "BASE_URL=${{ github.event.inputs.base_url}}" >> $GITHUB_ENV

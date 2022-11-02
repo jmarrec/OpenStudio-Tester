@@ -112,9 +112,8 @@ jobs:
         ls D:\OpenStudio-Tester\OpenStudio-Tester\OpenStudio-3.5.0-rc1+f9e7e978ae-Windows\Python
 
     - name: test loading the bindings in system python
-      shell: bash
+      working-directory: ${{ env.OS_DIR_NAME }}
       run: |
-        set -x
         python --version
         python -c "from pathlib import Path; p = (Path('${{ github.workspace }}') / '${{ env.OS_DIR_NAME }}' / 'Python').absolute(); print(p); import sys; sys.path.insert(0, str(p)); import openstudio; print(openstudio.openStudioLongVersion())"
 
