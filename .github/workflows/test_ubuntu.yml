@@ -35,6 +35,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        apt update && apt install -y wget binutils tree
+        wget https://github.com/cli/cli/releases/download/v2.18.1/gh_2.18.1_linux_amd64.deb
+        apt install ./gh_2.18.1_linux_amd64.deb
+
         if [[ "${{ github.event_name }}" == 'workflow_dispatch' ]]; then
           echo "BASE_URL=${{ github.event.inputs.base_url}}" >> $GITHUB_ENV
           echo "OS_VERSION=${{ github.event.inputs.os_version}}" >> $GITHUB_ENV
@@ -63,7 +67,6 @@ jobs:
         set -x
         installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Ubuntu-20.04.deb"
         echo "Installer link: $installer_url"
-        apt update && apt install -y wget binutils tree
         wget --quiet $installer_url
         apt install -y ./OpenStudio*.deb
         openstudio openstudio_version
