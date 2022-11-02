@@ -120,7 +120,7 @@ jobs:
       shell: bash
       run: |
         python --version
-        python -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+        python -c "from pathlib import Path; import sys; sys.path.insert(0, str(Path('$OS_ROOT_DIR/Python/'))); import openstudio; print(openstudio.openStudioLongVersion())"
 
     - name: Print OS SDK tree
       if: ${{ always() }}
