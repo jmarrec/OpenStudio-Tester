@@ -37,7 +37,7 @@ jobs:
       run: |
         apt update && apt install -y wget binutils tree
         wget https://github.com/cli/cli/releases/download/v2.18.1/gh_2.18.1_linux_amd64.deb
-        apt install ./gh_2.18.1_linux_amd64.deb
+        apt install -y ./gh_2.18.1_linux_amd64.deb
 
         if [[ "${{ github.event_name }}" == 'workflow_dispatch' ]]; then
           echo "BASE_URL=${{ github.event.inputs.base_url}}" >> $GITHUB_ENV
