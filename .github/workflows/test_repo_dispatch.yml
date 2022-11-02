@@ -1,0 +1,35 @@
+name: Repo dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'The base url to use to download each platform'
+        required: true
+        default: 'http://openstudio-ci-builds.s3-website-us-west-2.amazonaws.com/PR-4731'
+      os_version:
+        description: 'OpenStudio Version (e.g. 3.5.0)'
+        required: true
+        default: '3.5.0'
+      os_prerelease_tag:
+        description: 'Pre-release tag (e.g. -alpha, -rc1). Leave empty if none'
+        required: false
+        default: '-rc1'
+      os_build_sha:
+         description: 'OpenStudio Build sha (first 10 chars)'
+         required: true
+         default: 'f9e7e978ae'
+  repository_dispatch:
+    types: [on-demand-test]
+
+jobs:
+  installer_ubuntu_2004:
+    runs-on: ubuntu-latest
+    steps:
+    - name: set up env
+      shell: bash
+      env:
+        GITHUB_EVENT_CONTEXT: ${{ toJson(github.event) }}
+      run: |
+        echo ${{ github.event_name }}
+        echo "$GITHUB_EVENT_CONTEXT" | tee github_event.json
