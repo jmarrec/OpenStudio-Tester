@@ -196,7 +196,7 @@ jobs:
         installer_url="${{ github.event.inputs.base_url}}/OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}%2B${{ github.event.inputs.os_build_sha}}-Windows.tar.gz"
         dirname=OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}+${{ github.event.inputs.os_build_sha}}-Windows
         echo "Installer link: $installer_url"
-        wget --quiet $installer_url
+        curl -SLO $installer_url
         tar xfz $dirname.tar.gz
 
         OS_ROOT_DIR=$(pwd)/$dirname
