@@ -35,14 +35,19 @@ jobs:
         echo "OS_PRERELEASE_TAG=${{ github.event.inputs.os_prerelease_tag}}" >> $GITHUB_ENV
         echo "OS_BUILD_SHA=${{ github.event.inputs.os_build_sha}}" >> $GITHUB_ENV
 
-    - name: set up env variables for repo dispatch
+    - name: set up env variables
+      if: ${{ github.event_name == 'repository_dispatch' }}
       shell: bash
-      env:
-        GITHUB_EVENT_CONTEXT: ${{ toJson(github.event) }}
       run: |
-        echo ${{ github.event_name }}
-        echo "$GITHUB_EVENT_CONTEXT" | tee github_event.json
+        echo "BASE_URL=${{ github.event.client_payload.base_url}}" >> $GITHUB_ENV
+        echo "OS_VERSION=${{ github.event.client_payload.os_version}}" >> $GITHUB_ENV
+        echo "OS_PRERELEASE_TAG=${{ github.client_payload.inputs.os_prerelease_tag}}" >> $GITHUB_ENV
+        echo "OS_BUILD_SHA=${{ github.event.client_payload.os_build_sha}}" >> $GITHUB_ENV
 
-    - name: does accessing something that doesnt exist in the context fail
+    - name: echo
+      shell: bash
       run: |
-        echo "CSLIFJKDSJF=${{ github.event.inputs.sfdsfdsfsf}}" >> $GITHUB_ENV
+        echo BASE_URL=$BASE_URL
+        echo OS_VERSION=$OS_VERSION
+        echo OS_PRERELEASE_TAG=$OS_PRERELEASE_TAG
+        echo OS_BUILD_SHA=$OS_BUILD_SHA
