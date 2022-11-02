@@ -37,16 +37,19 @@ jobs:
           echo "BASE_URL=${{ github.event.inputs.base_url}}" >> $GITHUB_ENV
           echo "OS_VERSION=${{ github.event.inputs.os_version}}" >> $GITHUB_ENV
           echo "OS_PRERELEASE_TAG=${{ github.event.inputs.os_prerelease_tag}}" >> $GITHUB_ENV
-          echo "OS_BUILD_SHA=${{ github.event.inputs.os_build_sha}}" >> $GITHUB_ENV
+          OS_BUILD_SHA=${{ github.event.inputs.os_build_sha}}
         else
           # ${{ github.event_name == 'repository_dispatch' }}
           echo "BASE_URL=${{ github.event.client_payload.base_url}}" >> $GITHUB_ENV
           echo "OS_VERSION=${{ github.event.client_payload.os_version}}" >> $GITHUB_ENV
           echo "OS_PRERELEASE_TAG=${{ github.event.client_payload.os_prerelease_tag}}" >> $GITHUB_ENV
-          echo "OS_BUILD_SHA=${{ github.event.client_payload.os_build_sha}}" >> $GITHUB_ENV
+          OS_BUILD_SHA=${{ github.event.client_payload.os_build_sha}}
         fi;
         OS_FULL_SHA=$(gh api repos/NREL/OpenStudio/commits/$(OS_BUILD_SHA) --jq ".sha")
         OS_BUILD_SHA=$(python -c "print('$OS_BUILD_SHA'[:10])")
+
+        echo "OS_BUILD_SHA=$OS_BUILD_SHA" >> $GITHUB_ENV
+        echo "OS_FULL_SHA=$OS_FULL_SHA" >> $GITHUB_ENV
 
         gh api --method POST -H "Accept: application/vnd.github+json" /repos/NREL/OpenStudio/statuses/$OS_FULL_SHA -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" -f context="OpenStudio-Tester/Ubuntu" -f state="pending
         echo "STEP_DESCRIPTION=pending" >> $GITHUB_ENV
