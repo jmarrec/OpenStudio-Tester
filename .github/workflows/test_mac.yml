@@ -33,16 +33,20 @@ jobs:
       shell: bash
       run: |
         if [[ "${{ github.event_name }}" == 'workflow_dispatch' ]]; then
-          echo "BASE_URL=${{ github.event.inputs.base_url}}" >> $GITHUB_ENV
-          echo "OS_VERSION=${{ github.event.inputs.os_version}}" >> $GITHUB_ENV
-          echo "OS_PRERELEASE_TAG=${{ github.event.inputs.os_prerelease_tag}}" >> $GITHUB_ENV
-          echo "OS_BUILD_SHA=${{ github.event.inputs.os_build_sha}}" >> $GITHUB_ENV
+          echo "github.event.inputs"
+          echo "${{ toJSON(github.event.inputs) }}"
+          echo "BASE_URL=${{ github.event.inputs.base_url }}" >> $GITHUB_ENV
+          echo "OS_VERSION=${{ github.event.inputs.os_version }}" >> $GITHUB_ENV
+          echo "OS_PRERELEASE_TAG=${{ github.event.inputs.os_prerelease_tag }}" >> $GITHUB_ENV
+          echo "OS_BUILD_SHA=${{ github.event.inputs.os_build_sha }}" >> $GITHUB_ENV
         else
           # ${{ github.event_name == 'repository_dispatch' }}
-          echo "BASE_URL=${{ github.event.client_payload.base_url}}" >> $GITHUB_ENV
-          echo "OS_VERSION=${{ github.event.client_payload.os_version}}" >> $GITHUB_ENV
-          echo "OS_PRERELEASE_TAG=${{ github.client_payload.os_prerelease_tag}}" >> $GITHUB_ENV
-          echo "OS_BUILD_SHA=${{ github.event.client_payload.os_build_sha}}" >> $GITHUB_ENV
+          echo "github.event.client_payload"
+          echo "${{ toJSON(github.event.client_payload) }}"
+          echo "BASE_URL=${{ github.event.client_payload.base_url }}" >> $GITHUB_ENV
+          echo "OS_VERSION=${{ github.event.client_payload.os_version }}" >> $GITHUB_ENV
+          echo "OS_PRERELEASE_TAG=${{ github.client_payload.os_prerelease_tag }}" >> $GITHUB_ENV
+          echo "OS_BUILD_SHA=${{ github.event.client_payload.os_build_sha }}" >> $GITHUB_ENV
         fi;
 
     - name: Download and install OS SDK installer
