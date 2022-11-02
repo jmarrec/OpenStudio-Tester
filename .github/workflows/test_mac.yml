@@ -141,11 +141,10 @@ jobs:
         }
 
         cd $OS_ROOT_DIR
-        set -x
 
         inspect_lib bin/openstudio
 
-        inspect_lib lib/libopenstudiolib.so
+        inspect_lib lib/libopenstudiolib.dylib
 
         inspect_lib lib/libpythonengine.so
 
@@ -153,7 +152,7 @@ jobs:
 
         inspect_lib Python/_openstudiomodel.so
 
-        inspect_lib Ruby/openstudio.so
+        inspect_lib Ruby/openstudio.bundle
 
 
     - name: Print OS SDK tree

@@ -127,7 +127,6 @@ jobs:
         }
 
         cd $OS_ROOT_DIR
-        set -x
 
         inspect_lib bin/openstudio
 
