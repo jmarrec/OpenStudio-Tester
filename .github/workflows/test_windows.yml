@@ -103,16 +103,6 @@ jobs:
         openstudio labs run -w compact_python_only_twomeasures.osw
         openstudio labs run -w compact_ruby_and_python.osw || true
 
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 2.7
-
-    - name: test loading the bindings in system ruby
-      shell: bash
-      run: |
-        ruby --version
-        ruby -I$OS_ROOT_DIR/Ruby/ -e "require 'openstudio'; puts OpenStudio.openStudioLongVersion()"
-
     - uses: actions/setup-python@v4
       with:
         python-version: '3.8.x'
@@ -122,7 +112,17 @@ jobs:
       run: |
         set -x
         python --version
-        python -c "import sys; sys.path.insert(0, r'$GITHUB_WORKSPACE\$OS_DIR_NAME\Python\'); import openstudio; print(openstudio.openStudioLongVersion())"
+        python -c "import sys; sys.path.insert(0, r'${{ github.workspace }}\${{ env.OS_DIR_NAME }}\Python\'); import openstudio; print(openstudio.openStudioLongVersion())"
+
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+
+    - name: test loading the bindings in system ruby
+      shell: bash
+      run: |
+        ruby --version
+        ruby -I$OS_ROOT_DIR/Ruby/ -e "require 'openstudio'; puts OpenStudio.openStudioLongVersion()"
 
     - name: Print OS SDK tree
       if: ${{ always() }}
