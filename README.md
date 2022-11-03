@@ -11,11 +11,11 @@ TODO:
 
 * Implement a `repository_dispatch` event? `workflow_dispatch` can also be triggered by API
     * Pros of `repository_dispatch` v. `workflow_dispatch`
-        *Repository dispatch allows passing an event type, that event type could potentially trigger several workflows
-    *Cons:
+        * Repository dispatch allows passing an event type, that event type could potentially trigger several workflows
+    * Cons:
         * Repository dispatch only runs on the default branch, cannot specify branch
         * Repository dispatch will impose a burden of having to deal with inputs/client_payload differently
-* Move it to NREL/OpenStudio, and have Jenkins POST the `repository_dispatch` event with the payload
+* Move it to NREL/OpenStudio, and have Jenkins POST the `repository_dispatch` / `workflow_dispatch` event with the payload
 
 
 ## Triggering the workflow_dispatch from the terminal

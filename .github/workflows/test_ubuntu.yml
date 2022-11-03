@@ -36,9 +36,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -x
-        apt -qq update && apt -qq install -y wget binutils tree
+        apt-get -qq update && apt-get -qq install -y wget binutils tree
         wget https://github.com/cli/cli/releases/download/v2.18.1/gh_2.18.1_linux_amd64.deb
-        apt install -y ./gh_2.18.1_linux_amd64.deb
+        apt-get -qq install -y ./gh_2.18.1_linux_amd64.deb
 
         if [[ "${{ github.event_name }}" == 'workflow_dispatch' ]]; then
           echo "BASE_URL=${{ github.event.inputs.base_url}}" >> $GITHUB_ENV
@@ -58,7 +58,7 @@ jobs:
         echo "OS_BUILD_SHA=$OS_BUILD_SHA" >> $GITHUB_ENV
         echo "OS_FULL_SHA=$OS_FULL_SHA" >> $GITHUB_ENV
 
-        gh api --method POST -H "Accept: application/vnd.github+json" /repos/NREL/OpenStudio/statuses/$OS_FULL_SHA -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" -f context="OpenStudio-Tester/Ubuntu" -f state="pending
+        gh api --method POST -H "Accept: application/vnd.github+json" /repos/NREL/OpenStudio/statuses/$OS_FULL_SHA -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" -f context="OpenStudio-Tester/Ubuntu" -f state="pending"
         echo "STEP_DESCRIPTION=pending" >> $GITHUB_ENV
 
     - name: Download and install OS SDK installer
@@ -69,7 +69,7 @@ jobs:
         installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Ubuntu-20.04.deb"
         echo "Installer link: $installer_url"
         wget --quiet $installer_url
-        apt install -y ./OpenStudio*.deb
+        apt-get -qq install -y ./OpenStudio*.deb
         openstudio openstudio_version
         echo "PATH=$PATH"
 
@@ -83,7 +83,7 @@ jobs:
       shell: bash
       run: |
         echo "STEP_DESCRIPTION='EnergyPlus itself works'" >> $GITHUB_ENV
-        $OS_ROOT_DIR/EnergyPlus/energyplus --help || echo "EnergyPlus missing dependencies!" && apt install -y libgomp1 libx11-6 && $OS_ROOT_DIR/EnergyPlus/energyplus --help
+        $OS_ROOT_DIR/EnergyPlus/energyplus --help || echo "EnergyPlus missing dependencies!" && apt-get -qq install -y libgomp1 libx11-6 && $OS_ROOT_DIR/EnergyPlus/energyplus --help
 
     - name: Basic CLI test
       shell: bash
@@ -120,7 +120,7 @@ jobs:
       shell: bash
       run: |
         echo "STEP_DESCRIPTION='Ruby bindings'" >> $GITHUB_ENV
-        apt install -y ruby2.7
+        apt-get -qq install -y ruby2.7
         ruby --version
         ruby -I$OS_ROOT_DIR/Ruby/ -e "require 'openstudio'; puts OpenStudio.openStudioLongVersion()"
 
@@ -128,7 +128,7 @@ jobs:
       shell: bash
       run: |
         echo "STEP_DESCRIPTION='Python bindings'" >> $GITHUB_ENV
-        apt install -y python3.8
+        apt-get -qq install -y python3.8
         python3.8 --version
         python3.8 -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
 
