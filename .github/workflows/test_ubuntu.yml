@@ -35,7 +35,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        apt update && apt install -y wget binutils tree
+        set -x
+        apt -qq update && apt -qq install -y wget binutils tree
         wget https://github.com/cli/cli/releases/download/v2.18.1/gh_2.18.1_linux_amd64.deb
         apt install -y ./gh_2.18.1_linux_amd64.deb
 
