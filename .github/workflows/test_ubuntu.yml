@@ -33,11 +33,11 @@ jobs:
     - name: Handle workflow_dispatch and repository_dispatch
       shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.COMMIT_STATUS_TOKEN }}
       run: |
         set -x
         apt-get -qq update && apt-get -qq install -y wget binutils tree
-        wget https://github.com/cli/cli/releases/download/v2.18.1/gh_2.18.1_linux_amd64.deb
+        wget --quiet https://github.com/cli/cli/releases/download/v2.18.1/gh_2.18.1_linux_amd64.deb
         apt-get -qq install -y ./gh_2.18.1_linux_amd64.deb
 
         if [[ "${{ github.event_name }}" == 'workflow_dispatch' ]]; then
@@ -58,7 +58,7 @@ jobs:
         echo "OS_BUILD_SHA=$OS_BUILD_SHA" >> $GITHUB_ENV
         echo "OS_FULL_SHA=$OS_FULL_SHA" >> $GITHUB_ENV
 
-        gh api --method POST -H "Accept: application/vnd.github+json" /repos/NREL/OpenStudio/statuses/$OS_FULL_SHA -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" -f context="OpenStudio-Tester/Ubuntu" -f state="pending"
+        gh api --method POST -H "Accept: application/vnd.github+json" /repos/NREL/OpenStudio/statuses/$OS_FULL_SHA -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" -f context="OpenStudio-Tester/Ubuntu" -f state="pending" || true
         echo "STEP_DESCRIPTION=pending" >> $GITHUB_ENV
 
     - name: Download and install OS SDK installer
@@ -135,14 +135,18 @@ jobs:
     - name: post status
       shell: bash
       if: ${{ failure() }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.COMMIT_STATUS_TOKEN }}
       run: |
-        gh api --method POST -H "Accept: application/vnd.github+json" /repos/NREL/OpenStudio/statuses/$OS_FULL_SHA -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" -f context="OpenStudio-Tester/Ubuntu" -f state=failure" -f description="$STEP_DESCRIPTION"
+        gh api --method POST -H "Accept: application/vnd.github+json" /repos/NREL/OpenStudio/statuses/$OS_FULL_SHA -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" -f context="OpenStudio-Tester/Ubuntu" -f state=failure" -f description="$STEP_DESCRIPTION" || true
 
     - name: post status
       shell: bash
       if: ${{ success() }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.COMMIT_STATUS_TOKEN }}
       run: |
-        gh api --method POST -H "Accept: application/vnd.github+json" /repos/NREL/OpenStudio/statuses/$OS_FULL_SHA -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" -f context="OpenStudio-Tester/Ubuntu" -f state="success" -f description="CLI Test on Docker ubuntu:focal"
+        gh api --method POST -H "Accept: application/vnd.github+json" /repos/NREL/OpenStudio/statuses/$OS_FULL_SHA -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" -f context="OpenStudio-Tester/Ubuntu" -f state="success" -f description="CLI Test on Docker ubuntu:focal" || true
 
     - name: Inspect libs
       shell: bash
