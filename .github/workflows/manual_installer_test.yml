@@ -14,7 +14,6 @@ on:
       os_prerelease_tag:
         description: 'Pre-release tag (e.g. -alpha, -rc1). Leave empty if none'
         required: false
-        default: '-rc1'
       os_build_sha:
          description: 'OpenStudio Build sha (first 10 chars)'
          required: true
