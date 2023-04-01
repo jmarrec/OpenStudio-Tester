@@ -256,6 +256,13 @@ jobs:
         openstudio labs run -w compact_python_only_twomeasures.osw
         openstudio labs run -w compact_ruby_and_python.osw || true
 
+    - name: test the joinAll order
+      shell: bash
+      run: |
+        set -x
+        aria2c https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
+        openstudio test_join.rb
+
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7
@@ -275,10 +282,3 @@ jobs:
       run: |
         python --version
         python -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
-
-    - name: test the joinAll order
-      shell: bash
-      run: |
-        set -x
-        aria2c https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
-        openstudio test_join.rb
