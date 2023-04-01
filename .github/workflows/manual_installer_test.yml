@@ -99,7 +99,7 @@ jobs:
       shell: bash
       run: |
         set -x
-        curl -SLO https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
+        wget https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
         openstudio test_join.rb
 #    - uses: 8398a7/action-slack@v3
 #      if: always() # Pick up events even if the job fails or is canceled.
@@ -193,7 +193,7 @@ jobs:
       shell: bash
       run: |
         set -x
-        curl -SLO https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
+        wget https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
         openstudio test_join.rb
 
   installer_windows_latest:
@@ -207,7 +207,7 @@ jobs:
         installer_url="${{ github.event.inputs.base_url}}/OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}%2B${{ github.event.inputs.os_build_sha}}-Windows.tar.gz"
         dirname=OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}+${{ github.event.inputs.os_build_sha}}-Windows
         echo "Installer link: $installer_url"
-        curl -SLO $installer_url
+        aria2c $installer_url
         tar xfz $dirname.tar.gz
 
         OS_ROOT_DIR=$(pwd)/$dirname
@@ -280,5 +280,5 @@ jobs:
       shell: bash
       run: |
         set -x
-        curl -SLO https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
+        aria2c https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
         openstudio test_join.rb
