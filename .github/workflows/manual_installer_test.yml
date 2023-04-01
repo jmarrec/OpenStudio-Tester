@@ -94,6 +94,13 @@ jobs:
         python3.8 --version
         python3.8 -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
 
+
+    - name: test the joinAll order
+      shell: bash
+      run: |
+        set -x
+        curl -SLO https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
+        openstudio test_join.rb
 #    - uses: 8398a7/action-slack@v3
 #      if: always() # Pick up events even if the job fails or is canceled.
 #      with:
@@ -182,6 +189,13 @@ jobs:
         python --version
         python -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
 
+    - name: test the joinAll order
+      shell: bash
+      run: |
+        set -x
+        curl -SLO https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
+        openstudio test_join.rb
+
   installer_windows_latest:
     runs-on: windows-latest
 
@@ -261,3 +275,10 @@ jobs:
       run: |
         python --version
         python -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+
+    - name: test the joinAll order
+      shell: bash
+      run: |
+        set -x
+        curl -SLO https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
+        openstudio test_join.rb
