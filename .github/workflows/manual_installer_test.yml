@@ -46,39 +46,49 @@ jobs:
         ls
         echo "puts ARGV" > test.rb
 
+        if openstudio labs; then
+          echo "The Ruby CLI is the default"
+          echo CLASSIC_SUBCOMMAND= >> $GITHUB_ENV
+          echo LABS_SUBCOMMAND=labs >> $GITHUB_ENV
+        else
+          echo "The C++ CLI is the default"
+          echo CLASSIC_SUBCOMMAND=classic >> $GITHUB_ENV
+          echo LABS_SUBCOMMAND= >> $GITHUB_ENV
+        fi
+
     - name: EnergyPlus itself works
       shell: bash
       run: |
         $OS_ROOT_DIR/EnergyPlus/energyplus --help || echo "EnergyPlus missing dependencies!" && apt install -y libgomp1 libx11-6 && $OS_ROOT_DIR/EnergyPlus/energyplus --help
 
-    - name: Basic CLI test
+    - name: Ruby Classic CLI test
       shell: bash
       run: |
         set -x
-        openstudio --help
-        openstudio openstudio_version
-        openstudio energyplus_version
-        openstudio ruby_version
-        openstudio -e "puts OpenStudio::Model::Model.new()"
-        openstudio -e "require 'oga'; puts Oga::VERSION"
-        openstudio execute_ruby_script test.rb -x arg2
-        openstudio run -w compact_ruby_only.osw
+        openstudio $CLASSIC_SUBCOMMAND --help
+        openstudio $CLASSIC_SUBCOMMAND openstudio_version
+        openstudio $CLASSIC_SUBCOMMAND energyplus_version
+        openstudio $CLASSIC_SUBCOMMAND ruby_version
+        openstudio $CLASSIC_SUBCOMMAND -e "puts OpenStudio::Model::Model.new()"
+        openstudio $CLASSIC_SUBCOMMAND -e "require 'oga'; puts Oga::VERSION"
+        openstudio $CLASSIC_SUBCOMMAND execute_ruby_script test.rb -x arg2
+        openstudio $CLASSIC_SUBCOMMAND run -w compact_ruby_only.osw
 
-    - name: Labs CLI Test
+    - name: C++ Labs CLI Test
       shell: bash
       run: |
         set -x
-        openstudio labs --help
-        openstudio labs openstudio_version
-        openstudio labs energyplus_version
-        openstudio labs ruby_version
-        openstudio labs python_version
-        openstudio labs -e "puts OpenStudio::Model::Model.new()"
-        openstudio labs -e "require 'oga'; puts Oga::VERSION"
-        openstudio labs execute_ruby_script test.rb -- -x arg2
-        openstudio labs run -w compact_ruby_only.osw
-        openstudio labs run -w compact_python_only_twomeasures.osw
-        openstudio labs run -w compact_ruby_and_python.osw || true
+        openstudio $LABS_SUBCOMMAND --help
+        openstudio $LABS_SUBCOMMAND openstudio_version
+        openstudio $LABS_SUBCOMMAND energyplus_version
+        openstudio $LABS_SUBCOMMAND ruby_version
+        openstudio $LABS_SUBCOMMAND python_version
+        openstudio $LABS_SUBCOMMAND -e "puts OpenStudio::Model::Model.new()"
+        openstudio $LABS_SUBCOMMAND -e "require 'oga'; puts Oga::VERSION"
+        openstudio $LABS_SUBCOMMAND execute_ruby_script test.rb -x arg2
+        openstudio $LABS_SUBCOMMAND run -w compact_ruby_only.osw
+        openstudio $LABS_SUBCOMMAND run -w compact_python_only_twomeasures.osw
+        openstudio $LABS_SUBCOMMAND run -w compact_ruby_and_python.osw || true
 
     - name: test loading the bindings in system ruby
       shell: bash
@@ -135,39 +145,49 @@ jobs:
         openstudio openstudio_version
         echo "PATH=$PATH"
 
+        if openstudio labs; then
+          echo "The Ruby CLI is the default"
+          echo CLASSIC_SUBCOMMAND= >> $GITHUB_ENV
+          echo LABS_SUBCOMMAND=labs >> $GITHUB_ENV
+        else
+          echo "The C++ CLI is the default"
+          echo CLASSIC_SUBCOMMAND=classic >> $GITHUB_ENV
+          echo LABS_SUBCOMMAND= >> $GITHUB_ENV
+        fi
+
     - name: EnergyPlus itself works
       shell: bash
       run: |
         $OS_ROOT_DIR/EnergyPlus/energyplus --help
 
-    - name: Basic CLI test
+    - name: Classic Ruby CLI test
       shell: bash
       run: |
         set -x
-        openstudio --help
-        openstudio openstudio_version
-        openstudio energyplus_version
-        openstudio ruby_version
-        openstudio -e "puts OpenStudio::Model::Model.new()"
-        openstudio -e "require 'oga'; puts Oga::VERSION"
-        openstudio execute_ruby_script test.rb -x arg2
-        openstudio run -w compact_ruby_only.osw
+        openstudio $CLASSIC_SUBCOMMAND --help
+        openstudio $CLASSIC_SUBCOMMAND openstudio_version
+        openstudio $CLASSIC_SUBCOMMAND energyplus_version
+        openstudio $CLASSIC_SUBCOMMAND ruby_version
+        openstudio $CLASSIC_SUBCOMMAND -e "puts OpenStudio::Model::Model.new()"
+        openstudio $CLASSIC_SUBCOMMAND -e "require 'oga'; puts Oga::VERSION"
+        openstudio $CLASSIC_SUBCOMMAND execute_ruby_script test.rb -x arg2
+        openstudio $CLASSIC_SUBCOMMAND run -w compact_ruby_only.osw
 
-    - name: Labs CLI Test
+    - name: Labs C++ CLI Test
       shell: bash
       run: |
         set -x
-        openstudio labs --help
-        openstudio labs openstudio_version
-        openstudio labs energyplus_version
-        openstudio labs ruby_version
-        openstudio labs python_version
-        openstudio labs -e "puts OpenStudio::Model::Model.new()"
-        openstudio labs -e "require 'oga'; puts Oga::VERSION"
-        openstudio labs execute_ruby_script test.rb -- -x arg2
-        openstudio labs run -w compact_ruby_only.osw
-        openstudio labs run -w compact_python_only_twomeasures.osw
-        openstudio labs run -w compact_ruby_and_python.osw || true
+        openstudio $LABS_SUBCOMMAND --help
+        openstudio $LABS_SUBCOMMAND openstudio_version
+        openstudio $LABS_SUBCOMMAND energyplus_version
+        openstudio $LABS_SUBCOMMAND ruby_version
+        openstudio $LABS_SUBCOMMAND python_version
+        openstudio $LABS_SUBCOMMAND -e "puts OpenStudio::Model::Model.new()"
+        openstudio $LABS_SUBCOMMAND -e "require 'oga'; puts Oga::VERSION"
+        openstudio $LABS_SUBCOMMAND execute_ruby_script test.rb -x arg2
+        openstudio $LABS_SUBCOMMAND run -w compact_ruby_only.osw
+        openstudio $LABS_SUBCOMMAND run -w compact_python_only_twomeasures.osw
+        openstudio $LABS_SUBCOMMAND run -w compact_ruby_and_python.osw || true
 
     - uses: ruby/setup-ruby@v1
       with:
@@ -222,39 +242,49 @@ jobs:
         openstudio openstudio_version
         echo "PATH=$PATH"
 
+        if openstudio labs; then
+          echo "The Ruby CLI is the default"
+          echo CLASSIC_SUBCOMMAND= >> $GITHUB_ENV
+          echo LABS_SUBCOMMAND=labs >> $GITHUB_ENV
+        else
+          echo "The C++ CLI is the default"
+          echo CLASSIC_SUBCOMMAND=classic >> $GITHUB_ENV
+          echo LABS_SUBCOMMAND= >> $GITHUB_ENV
+        fi
+
     - name: EnergyPlus itself works
       shell: bash
       run: |
         $OS_ROOT_DIR/EnergyPlus/energyplus --help
 
-    - name: Basic CLI test
+    - name: Classic Ruby CLI test
       shell: bash
       run: |
         set -x
-        openstudio --help
-        openstudio openstudio_version
-        openstudio energyplus_version
-        openstudio ruby_version
-        openstudio -e "puts OpenStudio::Model::Model.new()"
-        openstudio -e "require 'oga'; puts Oga::VERSION"
-        openstudio execute_ruby_script test.rb -x arg2
-        openstudio run -w compact_ruby_only.osw
+        openstudio $CLASSIC_SUBCOMMAND --help
+        openstudio $CLASSIC_SUBCOMMAND openstudio_version
+        openstudio $CLASSIC_SUBCOMMAND energyplus_version
+        openstudio $CLASSIC_SUBCOMMAND ruby_version
+        openstudio $CLASSIC_SUBCOMMAND -e "puts OpenStudio::Model::Model.new()"
+        openstudio $CLASSIC_SUBCOMMAND -e "require 'oga'; puts Oga::VERSION"
+        openstudio $CLASSIC_SUBCOMMAND execute_ruby_script test.rb -x arg2
+        openstudio $CLASSIC_SUBCOMMAND run -w compact_ruby_only.osw
 
-    - name: Labs CLI Test
+    - name: Labs C++ CLI Test
       shell: bash
       run: |
         set -x
-        openstudio labs --help
-        openstudio labs openstudio_version
-        openstudio labs energyplus_version
-        openstudio labs ruby_version
-        openstudio labs python_version
-        openstudio labs -e "puts OpenStudio::Model::Model.new()"
-        openstudio labs -e "require 'oga'; puts Oga::VERSION"
-        openstudio labs execute_ruby_script test.rb -- -x arg2
-        openstudio labs run -w compact_ruby_only.osw
-        openstudio labs run -w compact_python_only_twomeasures.osw
-        openstudio labs run -w compact_ruby_and_python.osw || true
+        openstudio $LABS_SUBCOMMAND --help
+        openstudio $LABS_SUBCOMMAND openstudio_version
+        openstudio $LABS_SUBCOMMAND energyplus_version
+        openstudio $LABS_SUBCOMMAND ruby_version
+        openstudio $LABS_SUBCOMMAND python_version
+        openstudio $LABS_SUBCOMMAND -e "puts OpenStudio::Model::Model.new()"
+        openstudio $LABS_SUBCOMMAND -e "require 'oga'; puts Oga::VERSION"
+        openstudio $LABS_SUBCOMMAND execute_ruby_script test.rb -x arg2
+        openstudio $LABS_SUBCOMMAND run -w compact_ruby_only.osw
+        openstudio $LABS_SUBCOMMAND run -w compact_python_only_twomeasures.osw
+        openstudio $LABS_SUBCOMMAND run -w compact_ruby_and_python.osw || true
 
     - name: test the joinAll order
       shell: bash
