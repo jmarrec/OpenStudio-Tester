@@ -123,7 +123,8 @@ jobs:
         openstudio $LABS_SUBCOMMAND execute_ruby_script test.rb -x arg2
         openstudio $LABS_SUBCOMMAND run -w compact_ruby_only.osw
         openstudio $LABS_SUBCOMMAND run -w compact_python_only_twomeasures.osw
-        openstudio $LABS_SUBCOMMAND run -w compact_ruby_and_python.osw || true
+        openstudio $LABS_SUBCOMMAND run -w compact_ruby_then_python.osw
+        openstudio $LABS_SUBCOMMAND run -w compact_python_then_ruby.osw
 
     - name: test loading the bindings in system ruby
       shell: bash
