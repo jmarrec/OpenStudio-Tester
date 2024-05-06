@@ -23,8 +23,8 @@ on:
 
 jobs:
 
-  installer_macos_latest:
-    runs-on: macos-latest
+  installer_macos_x86_64:
+    runs-on: macos-13
 
     steps:
 
