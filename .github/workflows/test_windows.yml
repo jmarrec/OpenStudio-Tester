@@ -116,7 +116,7 @@ jobs:
         openstudio $LABS_SUBCOMMAND run -w compact_ruby_then_python.osw
         openstudio $LABS_SUBCOMMAND run -w compact_python_then_ruby.osw
 
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: '3.8.x'
 
