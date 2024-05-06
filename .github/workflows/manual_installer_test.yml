@@ -22,17 +22,17 @@ on:
     types: [on-demand-test-all]
 
 jobs:
-  installer_ubuntu_2004:
+  installer_ubuntu_2204:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:focal
+      image: ubuntu:jammy
 
     steps:
     - name: Download and install OS SDK installer
       shell: bash
       run: |
         set -x
-        installer_url="${{ github.event.inputs.base_url}}/OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}%2B${{ github.event.inputs.os_build_sha}}-Ubuntu-20.04-x86_64.deb"
+        installer_url="${{ github.event.inputs.base_url}}/OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}%2B${{ github.event.inputs.os_build_sha}}-Ubuntu-22.04-x86_64.deb"
         echo "Installer link: $installer_url"
         apt update && apt install -y wget
         wget --quiet $installer_url
@@ -95,14 +95,19 @@ jobs:
     - name: test loading the bindings in system ruby
       shell: bash
       run: |
-        apt install -y ruby2.7
+        wget https://github.com/jmarrec/OpenStudio-Tester/releases/download/dependencies/ruby-3.2.2-ubuntu22.04.deb
+        apt-get -qq install -y ./ruby-3.2.2-ubuntu22.04.deb
+        rm -Rf ruby-3.2.2-ubuntu22.04.deb
         ruby --version
         ruby -I$OS_ROOT_DIR/Ruby/ -e "require 'openstudio'; puts OpenStudio.openStudioLongVersion()"
 
     - name: test loading the bindings in system python
       shell: bash
       run: |
-        apt install -y python3.8
+        apt-get install -y software-properties-common
+        add-apt-repository -y ppa:deadsnakes/ppa
+        apt-get update
+        apt-get -qq install -y python3.8
         python3.8 --version
         python3.8 -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
 
@@ -194,7 +199,7 @@ jobs:
 
     - uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 2.7
+        ruby-version: 3.2
 
     - name: test loading the bindings in system ruby
       shell: bash
@@ -299,7 +304,7 @@ jobs:
 
     - uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 2.7
+        ruby-version: 3.2
 
     - name: test loading the bindings in system ruby
       shell: bash
