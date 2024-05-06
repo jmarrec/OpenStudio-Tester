@@ -1,4 +1,4 @@
-name: Test CLI - Ubuntu Focal docker
+name: Test CLI - Ubuntu Jammy docker
 
 on:
   workflow_dispatch:
@@ -22,10 +22,10 @@ on:
     types: [on-demand-test, on-demand-ubuntu-test]
 
 jobs:
-  installer_ubuntu_2004:
+  installer_ubuntu_2204:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:focal
+      image: ubuntu:jammy
 
     steps:
 
@@ -35,7 +35,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.COMMIT_STATUS_TOKEN }}
       run: |
         set -x
-        apt-get -qq update && apt-get -qq install -y wget binutils tree
+        apt-get -qq update && apt-get -qq install -y wget git curl binutils tree
         wget --quiet https://github.com/cli/cli/releases/download/v2.18.1/gh_2.18.1_linux_amd64.deb
         apt-get -qq install -y ./gh_2.18.1_linux_amd64.deb
 
@@ -65,7 +65,7 @@ jobs:
       run: |
         echo "STEP_DESCRIPTION=download" >> $GITHUB_ENV
         set -x
-        installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Ubuntu-20.04.deb"
+        installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Ubuntu-22.04-x86_64.deb"
         echo "Installer link: $installer_url"
         wget --quiet $installer_url
         apt-get -qq install -y ./OpenStudio*.deb
@@ -130,7 +130,9 @@ jobs:
       shell: bash
       run: |
         echo "STEP_DESCRIPTION='Ruby bindings'" >> $GITHUB_ENV
-        apt-get -qq install -y ruby2.7
+        wget https://github.com/jmarrec/OpenStudio-Tester/releases/download/dependencies/ruby-3.2.2-ubuntu22.04.deb
+        apt-get -qq install -y ./ruby-3.2.2-ubuntu22.04.deb
+        rm -Rf ruby-3.2.2-ubuntu22.04.deb
         ruby --version
         ruby -I$OS_ROOT_DIR/Ruby/ -e "require 'openstudio'; puts OpenStudio.openStudioLongVersion()"
 
@@ -138,6 +140,11 @@ jobs:
       shell: bash
       run: |
         echo "STEP_DESCRIPTION='Python bindings'" >> $GITHUB_ENV
+        apt-get install -y software-properties-common
+        add-apt-repository -y ppa:deadsnakes/ppa
+        apt-get update
+        export TZ=US
+        ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
         apt-get -qq install -y python3.8
         python3.8 --version
         python3.8 -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
