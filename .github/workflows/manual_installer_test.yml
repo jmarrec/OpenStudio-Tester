@@ -417,7 +417,7 @@ jobs:
         python-version: '3.8.x'
 
     - name: test loading the bindings in system python
-      shell: bash
+      working-directory: ${{ env.OS_DIR_NAME }}
       run: |
         python --version
-        python -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+        python -c "from pathlib import Path; p = Path('./Python').absolute(); print(p); import sys; sys.path.insert(0, str(p)); import openstudio; print(openstudio.openStudioLongVersion())"
