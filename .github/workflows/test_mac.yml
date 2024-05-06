@@ -37,7 +37,7 @@ jobs:
           os: macos-13
           arch: x86_64
         - build_name: Darwin_armv8
-          os: macos-12
+          os: macos-14
           arch: arm64
 
     steps:
