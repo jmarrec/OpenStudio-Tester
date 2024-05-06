@@ -226,6 +226,104 @@ jobs:
         wget https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
         openstudio test_join.rb
 
+  installer_macos_arm:
+    runs-on: macos-14
+
+    steps:
+    - name: Download and install OS SDK installer
+      shell: bash
+      run: |
+        set -x
+        installer_url="${{ github.event.inputs.base_url}}/OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}%2B${{ github.event.inputs.os_build_sha}}-Darwin-arm64.tar.gz"
+        dirname=OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}+${{ github.event.inputs.os_build_sha}}-Darwin-arm64
+        echo "Installer link: $installer_url"
+        wget --quiet $installer_url
+        tar xfz $dirname.tar.gz
+
+        OS_ROOT_DIR=$(pwd)/$dirname
+        echo "OS_ROOT_DIR=$OS_ROOT_DIR" >> $GITHUB_ENV
+        cp -R $OS_ROOT_DIR/Examples/compact_osw/* .
+        ls
+        echo "puts ARGV" > test.rb
+
+        export PATH="$OS_ROOT_DIR/bin:$PATH"
+        echo "$OS_ROOT_DIR/bin" >> $GITHUB_PATH
+
+        openstudio openstudio_version
+        echo "PATH=$PATH"
+
+        if openstudio labs; then
+          echo "The Ruby CLI is the default"
+          echo CLASSIC_SUBCOMMAND= >> $GITHUB_ENV
+          echo LABS_SUBCOMMAND=labs >> $GITHUB_ENV
+        else
+          echo "The C++ CLI is the default"
+          echo CLASSIC_SUBCOMMAND=classic >> $GITHUB_ENV
+          echo LABS_SUBCOMMAND= >> $GITHUB_ENV
+        fi
+
+    - name: EnergyPlus itself works
+      shell: bash
+      run: |
+        $OS_ROOT_DIR/EnergyPlus/energyplus --help
+
+    - name: Classic Ruby CLI test
+      shell: bash
+      run: |
+        set -x
+        openstudio $CLASSIC_SUBCOMMAND --help
+        openstudio $CLASSIC_SUBCOMMAND openstudio_version
+        openstudio $CLASSIC_SUBCOMMAND energyplus_version
+        openstudio $CLASSIC_SUBCOMMAND ruby_version
+        openstudio $CLASSIC_SUBCOMMAND -e "puts OpenStudio::Model::Model.new()"
+        openstudio $CLASSIC_SUBCOMMAND -e "require 'oga'; puts Oga::VERSION"
+        openstudio $CLASSIC_SUBCOMMAND execute_ruby_script test.rb -x arg2
+        openstudio $CLASSIC_SUBCOMMAND run -w compact_ruby_only.osw
+
+    - name: Labs C++ CLI Test
+      shell: bash
+      run: |
+        set -x
+        openstudio $LABS_SUBCOMMAND --help
+        openstudio $LABS_SUBCOMMAND openstudio_version
+        openstudio $LABS_SUBCOMMAND energyplus_version
+        openstudio $LABS_SUBCOMMAND ruby_version
+        openstudio $LABS_SUBCOMMAND python_version
+        openstudio $LABS_SUBCOMMAND -e "puts OpenStudio::Model::Model.new()"
+        openstudio $LABS_SUBCOMMAND -e "require 'oga'; puts Oga::VERSION"
+        openstudio $LABS_SUBCOMMAND execute_ruby_script test.rb -x arg2
+        openstudio $LABS_SUBCOMMAND run -w compact_ruby_only.osw
+        openstudio $LABS_SUBCOMMAND run -w compact_python_only_twomeasures.osw
+        openstudio $LABS_SUBCOMMAND run -w compact_ruby_then_python.osw
+        openstudio $LABS_SUBCOMMAND run -w compact_python_then_ruby.osw
+
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.2
+
+    - name: test loading the bindings in system ruby
+      shell: bash
+      run: |
+        ruby --version
+        ruby -I$OS_ROOT_DIR/Ruby/ -e "require 'openstudio'; puts OpenStudio.openStudioLongVersion()"
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.8.x'
+
+    - name: test loading the bindings in system python
+      shell: bash
+      run: |
+        python --version
+        python -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+
+    - name: test the joinAll order
+      shell: bash
+      run: |
+        set -x
+        wget https://gist.githubusercontent.com/jmarrec/8caf36ee781c4102cd56f1a61d62c1fd/raw/f4e0f77bf9596e2a7ffb6371b804150affe45030/test_join.rb
+        openstudio test_join.rb
+
   installer_windows_latest:
     runs-on: windows-latest
 
