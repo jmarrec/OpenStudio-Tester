@@ -124,7 +124,7 @@ jobs:
       working-directory: ${{ env.OS_DIR_NAME }}
       run: |
         python --version
-        python -c "from pathlib import Path; p = Path('./Python').absolute(); print(p); import sys; sys.path.insert(0, str(p)); import openstudio; print(openstudio.openStudioLongVersion())"
+        python -c "from pathlib import Path; p = Path('./Python').absolute(); print(p); import sys; sys.path.insert(0, p.as_posix()); import openstudio; print(openstudio.openStudioLongVersion())"
 
     - uses: ruby/setup-ruby@v1
       with:
