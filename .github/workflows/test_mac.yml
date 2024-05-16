@@ -1,4 +1,4 @@
-name: Test CLI - macos-latest
+name: Test CLI - macos
 
 on:
   workflow_dispatch:
@@ -23,8 +23,22 @@ on:
 
 jobs:
 
-  installer_macos_latest:
-    runs-on: macos-latest
+  test_mac:
+    runs-on: ${{ matrix.os }}
+    name: "${{ matrix.build_name }}"
+
+    strategy:
+      # fail-fast: Default is true, switch to false to allow one platform to fail and still run others
+      fail-fast: false
+      matrix:
+        build_name: [Darwin_x86_64, Darwin_armv8]
+        include:
+        - build_name: Darwin_x86_64
+          os: macos-13
+          arch: x86_64
+        - build_name: Darwin_armv8
+          os: macos-14
+          arch: arm64
 
     steps:
 
@@ -52,8 +66,8 @@ jobs:
       shell: bash
       run: |
         set -x
-        installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Darwin-x86_64.tar.gz"
-        dirname=OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG+$OS_BUILD_SHA-Darwin-x86_64
+        installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Darwin-${{ matrix.arch }}.tar.gz"
+        dirname=OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG+$OS_BUILD_SHA-Darwin-${{ matrix.arch }}
         echo "Installer link: $installer_url"
         wget --quiet $installer_url
         tar xfz $dirname.tar.gz
@@ -127,7 +141,7 @@ jobs:
         ruby --version
         ruby -I$OS_ROOT_DIR/Ruby/ -e "require 'openstudio'; puts OpenStudio.openStudioLongVersion()"
 
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: '3.8.x'
 

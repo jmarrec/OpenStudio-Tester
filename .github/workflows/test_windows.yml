@@ -116,15 +116,16 @@ jobs:
         openstudio $LABS_SUBCOMMAND run -w compact_ruby_then_python.osw
         openstudio $LABS_SUBCOMMAND run -w compact_python_then_ruby.osw
 
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: '3.8.x'
 
     - name: test loading the bindings in system python
       working-directory: ${{ env.OS_DIR_NAME }}
       run: |
+        cp bin/openstudiolib.dll Python/
         python --version
-        python -c "from pathlib import Path; p = Path('./Python').absolute(); print(p); import sys; sys.path.insert(0, str(p)); import openstudio; print(openstudio.openStudioLongVersion())"
+        python -c "from pathlib import Path; print(Path('./Python').absolute()); import sys; sys.path.insert(0, Path('./Python').absolute().as_posix()); import openstudio; print(openstudio.openStudioLongVersion())"
 
     - uses: ruby/setup-ruby@v1
       with:
