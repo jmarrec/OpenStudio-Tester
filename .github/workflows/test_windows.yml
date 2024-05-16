@@ -125,7 +125,7 @@ jobs:
       run: |
         cp bin/openstudiolib.dll Python/
         python --version
-        python -c "from pathlib import Path; print(Path('./Python').absolute()); import sys; sys.path.insert(0, Path('./Python').absolute().as_posix()); import openstudio; print(openstudio.openStudioLongVersion())"
+        python -c "from pathlib import Path; p = Path('./Python').absolute(); print(p); import sys; sys.path.insert(0, p.as_posix()); import openstudio; print(openstudio.openStudioLongVersion())"
 
     - uses: ruby/setup-ruby@v1
       with:
