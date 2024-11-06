@@ -121,7 +121,7 @@ jobs:
         python-version: '3.8.x'
 
     - name: test loading the bindings in system python
-      working-directory: ${{ env.OS_DIR_NAME }}
+      working-directory: ${{ env.OS_ROOT_DIR }}
       run: |
         cp bin/openstudiolib.dll Python/
         python --version
@@ -139,6 +139,6 @@ jobs:
 
     - name: Print OS SDK tree
       if: ${{ always() }}
-      working-directory: ${{ env.OS_DIR_NAME }}
+      working-directory: ${{ env.OS_ROOT_DIR }}
       run: |
         tree /f /a

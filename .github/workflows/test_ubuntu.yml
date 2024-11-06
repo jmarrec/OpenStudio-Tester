@@ -22,10 +22,21 @@ on:
     types: [on-demand-test, on-demand-ubuntu-test]
 
 jobs:
-  installer_ubuntu_2204:
+  installer_ubuntu:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:jammy
+      image: ubuntu:${{ matrix.codename }}
+
+    strategy:
+      # fail-fast: Default is true, switch to false to allow one platform to fail and still run others
+      fail-fast: false
+      matrix:
+        codename: [jammy, noble]
+        include:
+          - codename: jammy
+            os_version: 22.04
+          - codename: noble
+            os_version: 24.04
 
     steps:
 
@@ -36,8 +47,8 @@ jobs:
       run: |
         set -x
         apt-get -qq update && apt-get -qq install -y wget git curl binutils tree
-        wget --quiet https://github.com/cli/cli/releases/download/v2.18.1/gh_2.18.1_linux_amd64.deb
-        apt-get -qq install -y ./gh_2.18.1_linux_amd64.deb
+        wget --quiet https://github.com/cli/cli/releases/download/v2.60.1/gh_2.60.1_linux_amd64.deb
+        apt-get -qq install -y ./gh_2.60.1_linux_amd64.deb
 
         if [[ "${{ github.event_name }}" == 'workflow_dispatch' ]]; then
           echo "BASE_URL=${{ github.event.inputs.base_url}}" >> $GITHUB_ENV
@@ -65,7 +76,7 @@ jobs:
       run: |
         echo "STEP_DESCRIPTION=download" >> $GITHUB_ENV
         set -x
-        installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Ubuntu-22.04-x86_64.deb"
+        installer_url="$BASE_URL/OpenStudio-$OS_VERSION$OS_PRERELEASE_TAG%2B$OS_BUILD_SHA-Ubuntu-${{ matrix.os_version }}-x86_64.deb"
         echo "Installer link: $installer_url"
         wget --quiet $installer_url
         apt-get -qq install -y ./OpenStudio*.deb
@@ -106,7 +117,7 @@ jobs:
         openstudio $CLASSIC_SUBCOMMAND -e "puts OpenStudio::Model::Model.new()"
         openstudio $CLASSIC_SUBCOMMAND -e "require 'oga'; puts Oga::VERSION"
         openstudio $CLASSIC_SUBCOMMAND execute_ruby_script test.rb -x arg2
-        openstudio $CLASSIC_SUBCOMMAND run -w compact_ruby_only.osw
+        openstudio $CLASSIC_SUBCOMMAND run --show-stdout --style-stdout -w compact_ruby_only.osw
 
     - name: C++ Labs CLI Test
       shell: bash
@@ -121,10 +132,10 @@ jobs:
         openstudio $LABS_SUBCOMMAND -e "puts OpenStudio::Model::Model.new()"
         openstudio $LABS_SUBCOMMAND -e "require 'oga'; puts Oga::VERSION"
         openstudio $LABS_SUBCOMMAND execute_ruby_script test.rb -x arg2
-        openstudio $LABS_SUBCOMMAND run -w compact_ruby_only.osw
-        openstudio $LABS_SUBCOMMAND run -w compact_python_only_twomeasures.osw
-        openstudio $LABS_SUBCOMMAND run -w compact_ruby_then_python.osw
-        openstudio $LABS_SUBCOMMAND run -w compact_python_then_ruby.osw
+        openstudio $LABS_SUBCOMMAND run --show-stdout --style-stdout -w compact_ruby_only.osw
+        openstudio $LABS_SUBCOMMAND run --show-stdout --style-stdout -w compact_python_only_twomeasures.osw
+        openstudio $LABS_SUBCOMMAND run --show-stdout --style-stdout -w compact_ruby_then_python.osw
+        openstudio $LABS_SUBCOMMAND run --show-stdout --style-stdout -w compact_python_then_ruby.osw
 
     - name: test loading the bindings in system ruby
       shell: bash
@@ -140,14 +151,12 @@ jobs:
       shell: bash
       run: |
         echo "STEP_DESCRIPTION='Python bindings'" >> $GITHUB_ENV
-        apt-get install -y software-properties-common
-        add-apt-repository -y ppa:deadsnakes/ppa
-        apt-get update
         export TZ=US
         ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-        apt-get -qq install -y python3.8
-        python3.8 --version
-        python3.8 -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+        apt-get -qq install -y python3
+        python3 --version
+        python3 -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+        PYTHONPATH=$OS_ROOT_DIR/Python python3 -c "import openstudio; print(openstudio.openStudioLongVersion())"
 
     - name: post status
       shell: bash

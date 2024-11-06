@@ -104,14 +104,11 @@ jobs:
     - name: test loading the bindings in system python
       shell: bash
       run: |
-        apt-get install -y software-properties-common
-        add-apt-repository -y ppa:deadsnakes/ppa
-        apt-get update
         export TZ=US
         ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-        apt-get -qq install -y python3.8
-        python3.8 --version
-        python3.8 -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+        apt-get -qq install -y python3
+        python3 --version
+        python3 -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
 
 
     - name: test the joinAll order
@@ -211,13 +208,14 @@ jobs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.8.x'
+        python-version: '3.12.x'
 
     - name: test loading the bindings in system python
       shell: bash
       run: |
         python --version
         python -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+        PYTHONPATH=$OS_ROOT_DIR/Python python -c "import openstudio; print(openstudio.openStudioLongVersion())"
 
     - name: test the joinAll order
       shell: bash
@@ -309,13 +307,14 @@ jobs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.8.x'
+        python-version: '3.12.x'
 
     - name: test loading the bindings in system python
       shell: bash
       run: |
         python --version
         python -c "import sys; sys.path.insert(0, '$OS_ROOT_DIR/Python/'); import openstudio; print(openstudio.openStudioLongVersion())"
+        PYTHONPATH=$OS_ROOT_DIR/Python python -c "import openstudio; print(openstudio.openStudioLongVersion())"
 
     - name: test the joinAll order
       shell: bash
@@ -414,7 +413,7 @@ jobs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.8.x'
+        python-version: '3.12.x'
 
     - name: test loading the bindings in system python
       working-directory: ${{ env.OS_DIR_NAME }}
