@@ -331,7 +331,7 @@ jobs:
       shell: bash
       run: |
         set -x
-        OS_DIR_NAME=OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}%2B${{ github.event.inputs.os_build_sha}}-Windows
+        OS_DIR_NAME=OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}+${{ github.event.inputs.os_build_sha}}-Windows
         echo "OS_DIR_NAME=$OS_DIR_NAME" >> $GITHUB_ENV
         installer_url="${{ github.event.inputs.base_url}}/OpenStudio-${{ github.event.inputs.os_version}}${{ github.event.inputs.os_prerelease_tag}}%2B${{ github.event.inputs.os_build_sha}}-Windows.tar.gz"
 
